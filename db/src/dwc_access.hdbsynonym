@@ -1,0 +1,8 @@
+{
+  "DWC_SFLIGHT_CV": {
+    "target": {
+      "schema": "<schema_from_service_json_by_DWC>",
+      "object": "<View/Table_Name>"
+    }
+  }
+}

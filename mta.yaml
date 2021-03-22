@@ -1,0 +1,76 @@
+## Generated mta.yaml based on template version 0.4.0
+## appName = dwc_btp_odata
+## language=nodejs; multiTenant=false
+## approuter=
+_schema-version: '3.1'
+ID: dwc_btp_odata
+version: 1.0.0
+description: "A simple CAP project."
+parameters:
+  enable-parallel-deployments: true
+   
+build-parameters:
+  before-all:
+   - builder: custom
+     commands:
+      - npm install --production
+      - npx -p @sap/cds-dk cds build --production
+
+modules:
+ # --------------------- SERVER MODULE ------------------------
+ - name: dwc_btp_odata-srv
+ # ------------------------------------------------------------
+   type: nodejs
+   path: gen/srv
+   requires:
+    # Resources extracted from CAP configuration
+    - name: dwc_btp_odata-db
+    - name: dwc_hdi_container_service
+   provides:
+    - name: srv-api      # required by consumers of CAP services (e.g. approuter)
+      properties:
+        srv-url: ${default-url}
+
+ # -------------------- SIDECAR MODULE ------------------------
+ - name: dwc_btp_odata-db-deployer
+ # ------------------------------------------------------------
+   type: hdb
+   path: gen/db  
+   parameters:
+     buildpack: nodejs_buildpack
+   requires:
+    # 'hana' and 'xsuaa' resources extracted from CAP configuration
+    - name: dwc_btp_odata-db
+      properties:
+       TARGET_CONTAINER: ~{hdi-service-name}
+    - name: dwc_hdi_container_service
+      group: SERVICE_REPLACEMENTS
+      properties:
+       key: ServiceName_1
+       service: ~{the-service-name}
+
+resources:
+ # services extracted from CAP configuration
+ # 'service-plan' can be configured via 'cds.requires.<name>.vcap.plan'
+# ------------------------------------------------------------
+ - name: dwc_btp_odata-db
+# ------------------------------------------------------------
+   type: com.sap.xs.hdi-container
+   parameters:
+     config:
+      database_id: <database_id from SAP Data Warehouse Cloud>
+      schema: <name_of_schema_for_db_objects_to_be_created>
+     service: hana  # or 'hanatrial' on trial landscapes
+     service-plan: hdi-shared
+   properties:
+     hdi-service-name: ${service-name}
+# The user provided service created in BTP to be able to access the DWC space database user
+# ------------------------------------------------------------
+ - name: dwc_hdi_container_service
+# ------------------------------------------------------------
+   type: org.cloudfoundry.existing-service
+   parameters:
+     service-name: <Name_of_service_created_in_SAP_BTP>
+   properties:
+     the-service-name: ${service-name}
+

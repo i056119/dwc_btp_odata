@@ -1,0 +1,17 @@
+{
+	"UPS_DWC_SPACE_CSMDEMO202002": {
+		"object_owner": {
+			"roles": [],
+			"container_roles": [],
+			"object_privileges": [
+                {
+				  "type": "VIEW",
+				  "name": "SFLIGHT_CV",
+				  "privileges_with_grant_option": [
+				    "SELECT"
+				  ]
+				}
+			]
+		}
+	}
+}
